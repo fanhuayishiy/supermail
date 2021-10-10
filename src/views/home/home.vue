@@ -73,15 +73,32 @@ export default {
     this.getHomeGoods('new')
     this.getHomeGoods('sell')
 
+
+  },
+  mounted() {
+    const refresh= this.debounce(this.$refs.scroll.refresh,500);
+
     this.$bus.$on('itemImageLoad',()=>{
-      console.log('--------')
-      this.$refs.scroll.refresh();
+      // console.log('--------')
+      refresh();
+      // this.$refs.scroll.refresh();
     })
   },
   methods:{
     /*
     * 事件监听相关方法
     * */
+    //防抖
+    debounce(func,delay){
+      let timer = null;
+      return function (...args){
+        if(timer) clearInterval(timer)
+
+        timer = setTimeout(()=>{
+          func.apply(this,args)
+        },delay)
+      }
+    },
     tabClick(index){
       console.log(index)
       switch (index){
