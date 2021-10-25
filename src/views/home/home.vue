@@ -1,6 +1,7 @@
 <template>
   <div id="home" class="wrapper">
     <nav-bar  class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <tab-control ref="tabControl1" class="tab-control" v-show="isTabFixed" @tabClick="tabClick" :titles="['流行','新款','精品']" />
     <scroll
       class="content"
       ref="scroll"
@@ -9,10 +10,10 @@
       :pull-up-load="true"
       @pullingUp="loadMore"
     >
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
-      <tab-control @tabClick="tabClick" :titles="['流行','新款','精品']"></tab-control>
+      <tab-control ref="tabControl2" @tabClick="tabClick" :titles="['流行','新款','精品']" />
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
@@ -47,7 +48,10 @@ export default {
         'sell':{page:0,list:[]},
       },
       currentType:'pop',
-      isShowBackTop:false
+      isShowBackTop:false,
+      //
+      tabOffsetTop:10,
+      isTabFixed:false
     }
   },
   components:{
@@ -83,6 +87,9 @@ export default {
       refresh();
       // this.$refs.scroll.refresh();
     })
+
+
+
   },
   methods:{
     /*
@@ -112,6 +119,8 @@ export default {
           this.currentType = 'sell'
           break;
       }
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
     backClick(){
       this.$refs.scroll.scrollTo(0,0)
@@ -119,9 +128,15 @@ export default {
     contentScroll(position){
       // console.log(position)
       this.isShowBackTop = (-position.y) > 1000;
+
+      // 2.决定tabControl是否吸顶(position: fixed)
+      this.isTabFixed = (-position.y) > this.tabOffsetTop
     },
     loadMore() {
       this.getHomeGoods(this.currentType)
+    },
+    swiperImageLoad(){
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
     /*
     * 网络请求相关方法
@@ -164,10 +179,7 @@ export default {
     /*top: 0;*/
     /*z-index: 9;*/
   }
-  .tab-control{
-    position: relative;
-    z-index: 9;
-  }
+
   .content{
     overflow: hidden;
 
@@ -176,5 +188,9 @@ export default {
     bottom: 49px;
     left: 0;
     right: 0;
+  }
+  .tab-control {
+    position: relative;
+    z-index: 9;
   }
 </style>
