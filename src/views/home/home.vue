@@ -33,11 +33,13 @@ import Scroll from "@/components/common/scroll/Scroll";
 import BackTop from "@/components/content/backTop/BackTop";
 
 import {getHomeMultidata,getHomeGoods} from "@/network/home";
-
+import {itemListenerMixin} from "@/common/mixin";
+import {debounce} from "@/common/utils";
 
 
 export default {
   name: "home",
+  mixins:[itemListenerMixin],
   data(){
     return {
       banners:[],
@@ -51,7 +53,8 @@ export default {
       isShowBackTop:false,
       //
       tabOffsetTop:10,
-      isTabFixed:false
+      isTabFixed:false,
+      saveY: 0,
     }
   },
   components:{
@@ -69,6 +72,19 @@ export default {
       return this.goods[this.currentType].list;
     }
   },
+  //回来页面的时候滚动到保存的位置，并且刷新防止bug
+  activated() {
+
+    this.$refs.scroll.refresh()
+    this.$refs.scroll.scrollTo(0,this.saveY,0)
+  },
+  //离开页面的时候保存滚动到的位置
+  deactivated() {
+    //1.保存y值
+    this.saveY = this.$refs.scroll.scroll.y;
+    //2.取消全局事件监听
+    this.$bus.$off('itemImgLoad',this.itemListener)
+  },
   created() {
     //  获取首页数据
     this.getHomeMultidata()
@@ -80,14 +96,6 @@ export default {
 
   },
   mounted() {
-    const refresh= this.debounce(this.$refs.scroll.refresh,500);
-
-    this.$bus.$on('itemImageLoad',()=>{
-      // console.log('--------')
-      refresh();
-      // this.$refs.scroll.refresh();
-    })
-
 
 
   },
