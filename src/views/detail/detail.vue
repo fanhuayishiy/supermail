@@ -1,14 +1,14 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
-    <scroll ref="scroll" class="content"  :pull-up-load="true">
+    <detail-nav-bar ref="nav" @titleClick="titleClick" class="detail-nav"></detail-nav-bar>
+    <scroll ref="scroll" class="content" @scroll="contentScroll" :probe-type="3"  :pull-up-load="true">
       <detail-swiper :top-images="topImages" />
       <detail-base-info :goods="goods" />
       <detail-shop-info :shop="shop" />
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad" />
-      <detail-param-info :param-info="paramInfo" />
-      <detail-comment-info :comment-info="commentInfo" />
-      <goods-list :goods="recommends"/>
+      <detail-param-info ref="params" :param-info="paramInfo" />
+      <detail-comment-info ref="comment" :comment-info="commentInfo" />
+      <goods-list ref="recommend" :goods="recommends"/>
     </scroll>
 
   </div>
@@ -26,7 +26,6 @@ import GoodsList from "@/components/content/goods/GoodsList";
 
 import Scroll from "@/components/common/scroll/Scroll";
 
-import {debounce} from "@/common/utils";
 import {getDetail,Goods,Shop,GoodsParam,getRecommend} from  '@/network/detail'
 import {itemListenerMixin} from "@/common/mixin";
 
@@ -54,10 +53,19 @@ export default {
       paramInfo:{},
       commentInfo:{},
       recommends:[],
+      themeTopYs: [],
+      currentIndex:0
     }
   },
   updated() {
     this.$refs.scroll.refresh()
+    // this.themeTopYs = []
+    // this.themeTopYs.push(0);
+    // this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+    // this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+    // this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+    //
+    // console.log(this.themeTopYs);
   },
   activated() {
 
@@ -69,7 +77,7 @@ export default {
       //1.获取顶部轮播图片
       this.topImages=res.result.itemInfo.topImages;
 
-      console.log(res)
+      // console.log(res)
 
     //  2.获取商品信息
       this.goods = new Goods(data.itemInfo,data.columns,data.shopInfo.services)
@@ -83,12 +91,27 @@ export default {
       if(data.rate.cRate !== 0){
         this.commentInfo = data.rate.list[0]
       }
+
+
+      // this.$nextTick(()=>{
+      //   //根据最新的数据，对应的DOM是已经被渲染出来了
+      //   //但是图片还没加载完
+      //
+      //   this.themeTopYs = []
+      //   this.themeTopYs.push(0);
+      //   this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+      //   this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+      //   this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+      //
+      //   console.log(this.themeTopYs);
+      // })
     })
     getRecommend().then(res=>{
       this.recommends=res.data.list;
     })
   },
   mounted() {
+
   },
   destroyed() {
     //取消全局事件监听
@@ -97,6 +120,40 @@ export default {
   methods:{
     imageLoad(){
       this.$refs.scroll.refresh()
+
+      this.themeTopYs = []
+      this.themeTopYs.push(0);
+      this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+
+      console.log(this.themeTopYs);
+    },
+    titleClick(index){
+      console.log(index)
+      this.$refs.scroll.scrollTo(0,-this.themeTopYs[index]+44,100)
+    },
+    contentScroll(position){
+      // console.log(position);
+    //  1.获取y值
+      const positionY = -position.y
+    //  2.positionY与主题中的值进行对比
+    // [0, 13780, 15063, 15279,]
+    //positonY在0-13780之间 index = 0
+    //......
+    //positonY在15279之后 index = 3
+      let length = this.themeTopYs.length
+      for(let i=0; i<length;i++){
+        // if(positionY>this.themeTopYs[parseInt(i)] && positionY < this.themeTopYs[parseInt(i)+1]){
+        //
+        // }
+        if(this.currentIndex !== i && ((i<length-1 && positionY>=this.themeTopYs[parseInt(i)] && positionY <= this.themeTopYs[parseInt(i)+1])||
+          (i===length-1 && positionY>=this.themeTopYs[parseInt(i)])) ){
+          this.currentIndex = i;
+          console.log(this.currentIndex)
+          this.$refs.nav.currentIndex = this.currentIndex;
+        }
+      }
     }
   }
 }
