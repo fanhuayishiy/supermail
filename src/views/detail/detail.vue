@@ -9,13 +9,19 @@
       <detail-param-info ref="params" :param-info="paramInfo" />
       <detail-comment-info ref="comment" :comment-info="commentInfo" />
       <goods-list ref="recommend" :goods="recommends"/>
-      <detail-bottom-bar />
-    </scroll>
 
+    </scroll>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+    <detail-bottom-bar />
   </div>
 </template>
 
 <script>
+
+import Scroll from "@/components/common/scroll/Scroll";
+import GoodsList from "@/components/content/goods/GoodsList";
+// import BackTop from "@/components/content/backTop/BackTop";
+
 import DetailNavBar from "@/views/detail/childComps/DetailNavBar";
 import DetailSwiper from "@/views/detail/childComps/DetailSwiper";
 import DetailBaseInfo from "@/views/detail/childComps/DetailBaseInfo";
@@ -23,13 +29,12 @@ import DetailShopInfo from "@/views/detail/childComps/DetailShopInfo";
 import DetailGoodsInfo from "@/views/detail/childComps/DetailGoodsInfo";
 import DetailParamInfo from "@/views/detail/childComps/DetailParamInfo";
 import DetailCommentInfo from "@/views/detail/childComps/DetailCommentInfo";
-import GoodsList from "@/components/content/goods/GoodsList";
 import DetailBottomBar from "@/views/detail/childComps/DetailBottomBar";
 
-import Scroll from "@/components/common/scroll/Scroll";
+
 
 import {getDetail,Goods,Shop,GoodsParam,getRecommend} from  '@/network/detail'
-import {itemListenerMixin} from "@/common/mixin";
+import {itemListenerMixin,backTopMixin} from "@/common/mixin";
 
 export default {
   name: "detail",
@@ -43,9 +48,10 @@ export default {
     DetailParamInfo,
     DetailCommentInfo,
     GoodsList,
-    DetailBottomBar
+    DetailBottomBar,
+    // BackTop
   },
-  mixins:[itemListenerMixin],
+  mixins:[itemListenerMixin,backTopMixin],
   data(){
     return {
       iid: null,
@@ -57,7 +63,8 @@ export default {
       commentInfo:{},
       recommends:[],
       themeTopYs: [],
-      currentIndex:0
+      currentIndex:0,
+      // isShowBackTop:false
     }
   },
   updated() {
@@ -156,7 +163,14 @@ export default {
           this.$refs.nav.currentIndex = this.currentIndex;
         }
       }
-    }
+
+    //  3.是否显示我们回到顶部
+    this.isShowBackTop = -position.y > 1000;
+
+    },
+    // backClick(){
+    //   this.$refs.scroll.scrollTo(0,0)
+    // },
   }
 }
 </script>
@@ -174,6 +188,6 @@ export default {
    background-color: #fff;
  }
  .content{
-   height: calc(100% - 44px);
+   height: calc(100% - 44px - 49px);
  }
 </style>
