@@ -9,6 +9,7 @@
       <detail-param-info ref="params" :param-info="paramInfo" />
       <detail-comment-info ref="comment" :comment-info="commentInfo" />
       <goods-list ref="recommend" :goods="recommends"/>
+      <detail-bottom-bar />
     </scroll>
 
   </div>
@@ -23,6 +24,7 @@ import DetailGoodsInfo from "@/views/detail/childComps/DetailGoodsInfo";
 import DetailParamInfo from "@/views/detail/childComps/DetailParamInfo";
 import DetailCommentInfo from "@/views/detail/childComps/DetailCommentInfo";
 import GoodsList from "@/components/content/goods/GoodsList";
+import DetailBottomBar from "@/views/detail/childComps/DetailBottomBar";
 
 import Scroll from "@/components/common/scroll/Scroll";
 
@@ -40,7 +42,8 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
-    GoodsList
+    GoodsList,
+    DetailBottomBar
   },
   mixins:[itemListenerMixin],
   data(){
@@ -126,7 +129,7 @@ export default {
       this.themeTopYs.push(this.$refs.params.$el.offsetTop);
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
-
+      this.themeTopYs.push(Number.MAX_VALUE)
       console.log(this.themeTopYs);
     },
     titleClick(index){
@@ -143,12 +146,11 @@ export default {
     //......
     //positonY在15279之后 index = 3
       let length = this.themeTopYs.length
-      for(let i=0; i<length;i++){
+      for(let i=0; i<length-1;i++){
         // if(positionY>this.themeTopYs[parseInt(i)] && positionY < this.themeTopYs[parseInt(i)+1]){
         //
         // }
-        if(this.currentIndex !== i && ((i<length-1 && positionY>=this.themeTopYs[parseInt(i)] && positionY <= this.themeTopYs[parseInt(i)+1])||
-          (i===length-1 && positionY>=this.themeTopYs[parseInt(i)])) ){
+        if(this.currentIndex !== i && (positionY>=this.themeTopYs[i] && positionY < this.themeTopYs[i+1])){
           this.currentIndex = i;
           console.log(this.currentIndex)
           this.$refs.nav.currentIndex = this.currentIndex;
