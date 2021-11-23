@@ -3,7 +3,7 @@ import VueRouter from "vue-router";
 
 const Home =()=>import('../views/home/home')
 const Category =()=>import('../views/category/category')
-const Shopcart =()=>import('../views/shopcart/shopcart')
+const Shopcart =()=>import('../views/cart/Cart')
 const Profile =()=>import('../views/profile/profile')
 const Detail =()=>import('../views/detail/detail')
 Vue.use(VueRouter)
@@ -22,7 +22,7 @@ const routes = [
     component:Category
   },
   {
-    path:'/shopcart',
+    path:'/cart',
     component:Shopcart
   },
   {

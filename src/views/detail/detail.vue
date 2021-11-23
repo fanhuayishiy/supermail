@@ -13,7 +13,7 @@
     </scroll>
     <detail-bottom-bar @addCart="addToCart" />
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
-
+<!--    <toast :show="show" :message="message"/>-->
   </div>
 </template>
 
@@ -22,6 +22,7 @@
 import Scroll from "@/components/common/scroll/Scroll";
 import GoodsList from "@/components/content/goods/GoodsList";
 // import BackTop from "@/components/content/backTop/BackTop";
+// import Toast from "@/components/common/toast/Toast";
 
 import DetailNavBar from "@/views/detail/childComps/DetailNavBar";
 import DetailSwiper from "@/views/detail/childComps/DetailSwiper";
@@ -51,6 +52,7 @@ export default {
     GoodsList,
     DetailBottomBar,
     // BackTop
+    // Toast
   },
   mixins:[itemListenerMixin,backTopMixin],
   data(){
@@ -66,6 +68,8 @@ export default {
       themeTopYs: [],
       currentIndex:0,
       // isShowBackTop:false
+      // message:'',
+      // show: false
     }
   },
   updated() {
@@ -184,7 +188,16 @@ export default {
       console.log("====",product);
       //  2.把商品加入购物车
       // this.$store.commit('addCart',product)
-      this.$store.dispatch('addCart',product)
+      this.$store.dispatch('addCart',product).then(res=>{
+        // this.message=res;
+        // this.show=true;
+        // setTimeout(()=>{
+        //   this.message='';
+        //   this.show=false;
+        // },1500)
+        this.$toast.show(res)
+        console.log(res)
+      })
     }
   }
 }
